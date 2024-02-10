@@ -42,7 +42,7 @@ const ClueComponent = () => {
       flexDirection="column"
       maxWidth={isXs ? '95%' : '800px'}
       sx={{
-        backgroundColor: '#feeee5',
+        // backgroundColor: '#7E7774',
         p: 3,
       }}
     >
@@ -56,6 +56,7 @@ const ClueComponent = () => {
           variant="body1"
           sx={{
             fontFamily: 'cursive',
+            fontSize: '20px',
             whiteSpace: 'pre-wrap',
             textAlign: 'center',
           }}
@@ -99,7 +100,7 @@ const ClueComponent = () => {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#e6dec6',
+            backgroundColor: '#FFE8D6',
           }}
         >
           <Typography

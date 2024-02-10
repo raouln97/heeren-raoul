@@ -8,7 +8,9 @@ const MainPage = () => {
       container
       alignItems="center"
       display="flex"
-      style={{ minHeight: '100vh' }}
+      style={{
+        minHeight: '100vh',
+      }}
       flexDirection="column"
     >
       <>

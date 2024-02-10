@@ -4,6 +4,7 @@ import {
   Button,
   IconButton,
   Stack,
+  Typography,
 } from '@mui/material';
 import {
   Delete,
@@ -78,8 +79,16 @@ const ImageCaptureCarousel = () => {
         <Button
           variant="contained"
           component="span"
+          style={{
+            backgroundColor: '#FFE8D6',
+          }}
         >
-          Open Camera
+          <Typography
+            color="black"
+            variant="caption"
+          >
+            Open Camera
+          </Typography>
         </Button>
       </label>
       <Stack
