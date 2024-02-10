@@ -123,7 +123,7 @@ const ClueComponent = () => {
         display="flex"
         paddingTop="20px"
       >
-        {/* <CameraCarousel /> */}
+        <CameraCarousel />
       </Grid>
     </Grid>
   );
