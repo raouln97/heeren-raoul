@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Grid,
@@ -12,15 +12,35 @@ import logoUrl from '../assets/LogoWithWords.svg';
 import CameraComponent from './CameraComponent';
 import CameraCarousel from './CameraComponent';
 
-const ClueComponent = () => {
+type Props = {
+  clueId: number;
+};
+
+const ClueComponent: React.FC<Props> = props => {
   const theme = useTheme();
-  const isXs = useMediaQuery(
-    theme.breakpoints.down('sm')
+  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
+  const [guessedClue, setGuessedClue] = useState('');
+  const [clueText, setClueText] = useState('');
+  const [answerLength, setAnswerLength] = useState<number | undefined>(
+    undefined
   );
-  const [guessedClue, setGuessedClue] =
-    useState('');
-  const clueText =
-    "In a realm where time weaves tales both old and new, Find the guardian that watched our story's debut. In a land where skyscrapers reach and boats gently sway, Where a fairy tale from afar finds its modern-day play. By the river, where the water's stories unfold, Seek the place where German tales are told.";
+  const getClueData = async () => {
+    const response = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}${props.clueId}`
+    );
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const clueData = await response.json(); // Convert the response to JSON
+    setClueText(clueData.clue);
+    console.log(clueData.answerLength);
+    setAnswerLength(clueData.answerLength);
+  };
+
+  useEffect(() => {
+    console.log(props.clueId);
+    if (props.clueId) getClueData();
+  }, [props.clueId]);
   //   const displayedText = useTypingEffect(
   //     clueText,
   //     100
@@ -34,7 +54,7 @@ const ClueComponent = () => {
     setGuessedClue(event.target.value);
   };
 
-  return (
+  return clueText ? (
     <Grid
       container
       justifyContent="center"
@@ -46,12 +66,7 @@ const ClueComponent = () => {
         p: 3,
       }}
     >
-      <Grid
-        item
-        justifyContent="center"
-        alignItems="center"
-        display="flex"
-      >
+      <Grid item justifyContent="center" alignItems="center" display="flex">
         <Typography
           variant="body1"
           sx={{
@@ -86,7 +101,7 @@ const ClueComponent = () => {
             handleChange(e)
           }
         /> */}
-        <WordInput length={10} />
+        <WordInput length={answerLength} />
       </Grid>
       <Grid
         item
@@ -103,18 +118,10 @@ const ClueComponent = () => {
             backgroundColor: '#FFE8D6',
           }}
         >
-          <Typography
-            color="black"
-            variant="caption"
-          >
+          <Typography color="black" variant="caption">
             Submit
           </Typography>
-          <img
-            src={logoUrl}
-            alt="Description"
-            width="50px"
-            height="50px"
-          />
+          <img src={logoUrl} alt="Description" width="50px" height="50px" />
         </Button>
       </Grid>
       <Grid
@@ -127,6 +134,8 @@ const ClueComponent = () => {
         <CameraCarousel />
       </Grid>
     </Grid>
+  ) : (
+    <></>
   );
 };
 

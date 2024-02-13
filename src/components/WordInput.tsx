@@ -3,30 +3,17 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 
 const WordInput = ({ length }) => {
-  const [word, setWord] = useState(
-    Array(length).fill('')
-  );
+  console.log('HERE', length);
+  const [word, setWord] = useState(Array(length).fill(''));
 
-  const handleChange = (
-    index,
-    event
-  ) => {
+  const handleChange = (index, event) => {
     const newWord = [...word];
-    newWord[index] = event.target.value
-      .toUpperCase()
-      .substring(0, 1);
+    newWord[index] = event.target.value.toUpperCase().substring(0, 1);
     setWord(newWord);
 
     // Move focus to next input if not the last one and if a character is entered
-    if (
-      index < length - 1 &&
-      event.target.value
-    ) {
-      document
-        .getElementById(
-          `input-${index + 1}`
-        )
-        .focus();
+    if (index < length - 1 && event.target.value) {
+      document.getElementById(`input-${index + 1}`).focus();
     }
   };
 
@@ -58,23 +45,15 @@ const WordInput = ({ length }) => {
             pattern: '[A-Za-z]',
           }}
           value={char}
-          onChange={e =>
-            handleChange(index, e)
-          }
+          onChange={e => handleChange(index, e)}
           onKeyUp={e => {
             if (
-              (
-                e.target as HTMLInputElement
-              ).value === '' &&
+              (e.target as HTMLInputElement).value === '' &&
               e.key === 'Backspace' &&
               index > 0
             ) {
               // Move focus to previous input on backspace if current is empty
-              document
-                .getElementById(
-                  `input-${index - 1}`
-                )
-                .focus();
+              document.getElementById(`input-${index - 1}`).focus();
             }
           }}
           autoComplete="off"
