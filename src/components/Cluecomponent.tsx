@@ -26,7 +26,7 @@ const ClueComponent: React.FC<Props> = props => {
   );
   const getClueData = async () => {
     const response = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}${props.clueId}`
+      `${process.env.REACT_APP_BACKEND_URL}applications/${props.clueId}`
     );
     if (!response.ok) {
       throw new Error('Network response was not ok');
