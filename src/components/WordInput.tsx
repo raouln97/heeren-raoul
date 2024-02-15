@@ -2,20 +2,8 @@ import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 
-const WordInput = ({ length }) => {
+const WordInput = ({ length, handleChange, guessedClue }) => {
   console.log('HERE', length);
-  const [word, setWord] = useState(Array(length).fill(''));
-
-  const handleChange = (index, event) => {
-    const newWord = [...word];
-    newWord[index] = event.target.value.toUpperCase().substring(0, 1);
-    setWord(newWord);
-
-    // Move focus to next input if not the last one and if a character is entered
-    if (index < length - 1 && event.target.value) {
-      document.getElementById(`input-${index + 1}`).focus();
-    }
-  };
 
   return (
     <Box
@@ -31,7 +19,7 @@ const WordInput = ({ length }) => {
         // padding: '10px',
       }}
     >
-      {word.map((char, index) => (
+      {guessedClue.map((char, index) => (
         <TextField
           key={index}
           id={`input-${index}`}

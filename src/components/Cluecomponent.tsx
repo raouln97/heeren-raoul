@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Box,
   Button,
+  Fade,
   Grid,
   Typography,
   useMediaQuery,
@@ -11,6 +13,9 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import logoUrl from '../assets/LogoWithWords.svg';
 import CameraComponent from './CameraComponent';
 import CameraCarousel from './CameraComponent';
+import { postData } from '../services/services';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 type Props = {
   clueId: number;
@@ -19,11 +24,15 @@ type Props = {
 const ClueComponent: React.FC<Props> = props => {
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('sm'));
-  const [guessedClue, setGuessedClue] = useState('');
-  const [clueText, setClueText] = useState('');
   const [answerLength, setAnswerLength] = useState<number | undefined>(
     undefined
   );
+  const [guessedClue, setGuessedClue] = useState(Array(answerLength).fill(''));
+  const [clueText, setClueText] = useState('');
+  const [submissionResult, setSubmissionResult] = useState(null); // true for success, false for failure
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [images, setImages] = useState([]);
+
   const getClueData = async () => {
     const response = await fetch(
       `${process.env.REACT_APP_BACKEND_URL}applications/${props.clueId}`
@@ -37,24 +46,46 @@ const ClueComponent: React.FC<Props> = props => {
     setAnswerLength(clueData.answerLength);
   };
 
+  const submitClue = async () => {
+    const body = {
+      answer: guessedClue.join(''),
+      clueId: props.clueId,
+    };
+    const response = await postData(
+      `${process.env.REACT_APP_BACKEND_URL}applications/answer`,
+      body
+    );
+    console.log('response is:', response);
+    setSubmissionResult(response); // Assume response has a correct property
+    setShowFeedback(true);
+    if (response) {
+      const body = { bufferImages: images, clueAnswer: guessedClue.join('') };
+      await postData(`${process.env.REACT_APP_BACKEND_URL}aws/multiple`, body);
+    }
+    setTimeout(() => setShowFeedback(false), 2000);
+  };
+
   useEffect(() => {
     console.log(props.clueId);
     if (props.clueId) getClueData();
   }, [props.clueId]);
-  //   const displayedText = useTypingEffect(
-  //     clueText,
-  //     100
-  //   ); // Adjust typing speed as needed
 
-  const handleChange = (event: {
-    target: {
-      value: React.SetStateAction<string>;
-    };
-  }) => {
-    setGuessedClue(event.target.value);
+  useEffect(() => {
+    setGuessedClue(Array(answerLength).fill(''));
+  }, [answerLength]);
+
+  const handleChange = (index, event) => {
+    const newWord = [...guessedClue];
+    newWord[index] = event.target.value.toUpperCase().substring(0, 1);
+    setGuessedClue(newWord);
+
+    // Move focus to next input if not the last one and if a character is entered
+    if (index < answerLength - 1 && event.target.value) {
+      document.getElementById(`input-${index + 1}`).focus();
+    }
   };
 
-  return clueText ? (
+  return clueText && answerLength > 1 ? (
     <Grid
       container
       justifyContent="center"
@@ -66,27 +97,50 @@ const ClueComponent: React.FC<Props> = props => {
         p: 3,
       }}
     >
-      <Grid item justifyContent="center" alignItems="center" display="flex">
-        <Typography
-          variant="body1"
-          sx={{
-            fontFamily: 'cursive',
-            fontSize: '20px',
-            whiteSpace: 'pre-wrap',
-            textAlign: 'center',
-          }}
-        >
-          {clueText}
-        </Typography>
-      </Grid>
-      <Grid
-        item
-        justifyContent="center"
-        alignItems="center"
-        display="flex"
-        paddingTop="20px"
-      >
-        {/* <TextField
+      {showFeedback && (
+        <Fade in={showFeedback} timeout={600}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontSize: '4rem',
+            }}
+          >
+            {submissionResult ? (
+              <CheckCircleOutlineIcon
+                style={{ color: 'green', fontSize: 'inherit' }}
+              />
+            ) : (
+              <HighlightOffIcon style={{ color: 'red', fontSize: 'inherit' }} />
+            )}
+          </Box>
+        </Fade>
+      )}
+      {!showFeedback && (
+        <>
+          <Grid item justifyContent="center" alignItems="center" display="flex">
+            <Typography
+              variant="body1"
+              sx={{
+                fontFamily: 'cursive',
+                fontSize: '20px',
+                whiteSpace: 'pre-wrap',
+                textAlign: 'center',
+              }}
+            >
+              {clueText}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            justifyContent="center"
+            alignItems="center"
+            display="flex"
+            paddingTop="20px"
+          >
+            {/* <TextField
           variant="outlined"
           inputProps={{
             maxLength: 1,
@@ -101,29 +155,36 @@ const ClueComponent: React.FC<Props> = props => {
             handleChange(e)
           }
         /> */}
-        <WordInput length={answerLength} />
-      </Grid>
-      <Grid
-        item
-        justifyContent="flex-end"
-        alignItems="center"
-        display="flex"
-        paddingTop="20px"
-      >
-        <Button
-          variant="contained"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#FFE8D6',
-          }}
-        >
-          <Typography color="black" variant="caption">
-            Submit
-          </Typography>
-          <img src={logoUrl} alt="Description" width="50px" height="50px" />
-        </Button>
-      </Grid>
+            <WordInput
+              length={answerLength}
+              handleChange={handleChange}
+              guessedClue={guessedClue}
+            />
+          </Grid>
+          <Grid
+            item
+            justifyContent="flex-end"
+            alignItems="center"
+            display="flex"
+            paddingTop="20px"
+          >
+            <Button
+              variant="contained"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#FFE8D6',
+              }}
+              onClick={submitClue}
+            >
+              <Typography color="black" variant="caption">
+                Submit
+              </Typography>
+              <img src={logoUrl} alt="Description" width="50px" height="50px" />
+            </Button>
+          </Grid>
+        </>
+      )}
       <Grid
         item
         justifyContent="center"
@@ -131,7 +192,7 @@ const ClueComponent: React.FC<Props> = props => {
         display="flex"
         paddingTop="20px"
       >
-        <CameraCarousel />
+        <CameraCarousel images={images} setImages={setImages} />
       </Grid>
     </Grid>
   ) : (

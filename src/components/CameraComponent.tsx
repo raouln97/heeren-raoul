@@ -1,67 +1,45 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  IconButton,
-  Stack,
-  Typography,
-} from '@mui/material';
-import {
-  Delete,
-  ArrowBackIosNew,
-  ArrowForwardIos,
-} from '@mui/icons-material';
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
+import { Delete, ArrowBackIosNew, ArrowForwardIos } from '@mui/icons-material';
 
-const ImageCaptureCarousel = () => {
-  const [images, setImages] = useState(
-    []
-  );
-  const [
-    currentImage,
-    setCurrentImage,
-  ] = useState(0);
+const ImageCaptureCarousel = ({ images, setImages }) => {
+  const [currentImage, setCurrentImage] = useState(0);
 
   const handleCapture = event => {
     const file = event.target.files[0];
     if (file) {
-      const imageUrl =
-        URL.createObjectURL(file);
-      setImages(prevImages => [
-        ...prevImages,
-        imageUrl,
-      ]);
-      setCurrentImage(images.length); // Focus on the newly added image
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        const base64Image = e.target.result;
+        setImages(prevImages => {
+          const updatedImages = [...prevImages, base64Image];
+
+          // Now, set the current image index here, using the updated length
+          setCurrentImage(updatedImages.length - 1); // Arrays are zero-indexed
+
+          return updatedImages; // Return the updated images array
+        });
+      };
+
+      reader.readAsDataURL(file);
     }
   };
 
   const deleteImage = index => {
-    setImages(prevImages =>
-      prevImages.filter(
-        (_, i) => i !== index
-      )
-    );
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
     setCurrentImage(prevCurrentImage =>
-      prevCurrentImage > 0
-        ? prevCurrentImage - 1
-        : 0
+      prevCurrentImage > 0 ? prevCurrentImage - 1 : 0
     );
   };
 
   const goToNextImage = () => {
-    setCurrentImage(
-      prevCurrentImage =>
-        (prevCurrentImage + 1) %
-        images.length
-    );
+    setCurrentImage(prevCurrentImage => (prevCurrentImage + 1) % images.length);
   };
 
   const goToPreviousImage = () => {
     setCurrentImage(
-      prevCurrentImage =>
-        (prevCurrentImage -
-          1 +
-          images.length) %
-        images.length
+      prevCurrentImage => (prevCurrentImage - 1 + images.length) % images.length
     );
   };
 
@@ -83,29 +61,17 @@ const ImageCaptureCarousel = () => {
             backgroundColor: '#FFE8D6',
           }}
         >
-          <Typography
-            color="black"
-            variant="caption"
-          >
+          <Typography color="black" variant="caption">
             Open Camera
           </Typography>
         </Button>
       </label>
-      <Stack
-        direction="row"
-        spacing={2}
-        justifyContent="center"
-        sx={{ mt: 2 }}
-      >
+      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
         {images.length > 0 && (
           <>
             <IconButton
-              onClick={
-                goToPreviousImage
-              }
-              disabled={
-                images.length < 2
-              }
+              onClick={goToPreviousImage}
+              disabled={images.length < 2}
             >
               <ArrowBackIosNew />
             </IconButton>
@@ -116,9 +82,7 @@ const ImageCaptureCarousel = () => {
               }}
             >
               <img
-                src={
-                  images[currentImage]
-                }
+                src={images[currentImage]}
                 alt="Capture"
                 style={{
                   width: '100%',
@@ -132,21 +96,12 @@ const ImageCaptureCarousel = () => {
                   top: 0,
                   right: 0,
                 }}
-                onClick={() =>
-                  deleteImage(
-                    currentImage
-                  )
-                }
+                onClick={() => deleteImage(currentImage)}
               >
                 <Delete />
               </IconButton>
             </Box>
-            <IconButton
-              onClick={goToNextImage}
-              disabled={
-                images.length < 2
-              }
-            >
+            <IconButton onClick={goToNextImage} disabled={images.length < 2}>
               <ArrowForwardIos />
             </IconButton>
           </>
