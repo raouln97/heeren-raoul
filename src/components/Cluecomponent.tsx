@@ -62,7 +62,10 @@ const ClueComponent: React.FC<Props> = props => {
       const body = { bufferImages: images, clueAnswer: guessedClue.join('') };
       await postData(`${process.env.REACT_APP_BACKEND_URL}aws/multiple`, body);
     }
-    setTimeout(() => setShowFeedback(false), 2000);
+    setTimeout(() => {
+      setShowFeedback(false);
+      if (response) window.location.reload();
+    }, 2000);
   };
 
   useEffect(() => {
@@ -183,17 +186,17 @@ const ClueComponent: React.FC<Props> = props => {
               <img src={logoUrl} alt="Description" width="50px" height="50px" />
             </Button>
           </Grid>
+          <Grid
+            item
+            justifyContent="center"
+            alignItems="center"
+            display="flex"
+            paddingTop="20px"
+          >
+            <CameraCarousel images={images} setImages={setImages} />
+          </Grid>
         </>
       )}
-      <Grid
-        item
-        justifyContent="center"
-        alignItems="center"
-        display="flex"
-        paddingTop="20px"
-      >
-        <CameraCarousel images={images} setImages={setImages} />
-      </Grid>
     </Grid>
   ) : (
     <></>

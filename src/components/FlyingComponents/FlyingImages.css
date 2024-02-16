@@ -1,0 +1,32 @@
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(100px, 1fr)
+  ); /* Adjust the minmax() for desired image size */
+  gap: 10px;
+  justify-items: center;
+  align-items: center;
+  padding: 20px; /* Add some padding around the grid */
+  max-height: 100vh; /* Limit the height of the grid */
+  overflow: auto; /* Add scrolling if the content overflows */
+}
+
+.image-item {
+  width: 100%; /* Make images responsive to the size of the grid item */
+  height: auto; /* Maintain aspect ratio */
+  transition: transform 1s ease-out, opacity 1s ease-out;
+  max-width: 100px; /* Limit the maximum size of images */
+}
+
+.pop-up {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(2); /* Adjust scale as needed */
+  z-index: 2;
+}
+
+.blur {
+  filter: blur(4px);
+}
